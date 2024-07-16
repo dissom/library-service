@@ -24,4 +24,7 @@ urlpatterns = [
         "api/books/",
         include("books.urls", namespace="books")
     ),
+
+    path("__debug__/", include("debug_toolbar.urls")),
 ]
+
