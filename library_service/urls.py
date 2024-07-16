@@ -24,7 +24,10 @@ urlpatterns = [
         "api/books/",
         include("books.urls", namespace="books")
     ),
-
+    path(
+        "api/users/",
+        include("users.urls", namespace="users")
+    ),
     path("__debug__/", include("debug_toolbar.urls")),
 ]
 
