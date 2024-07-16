@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework",
     "debug_toolbar",
+    "borrowings",
     "users",
     "books",
 ]
