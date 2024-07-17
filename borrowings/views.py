@@ -3,6 +3,7 @@ from rest_framework import viewsets, mixins
 from borrowings.models import Borrowing
 from borrowings.permissions import IsAuthenticatedAndOwnerOrAdmin
 from borrowings.serializers import (
+    BorrowingCreateSerializer,
     BorrowingReadSerializer
 )
 
@@ -19,6 +20,15 @@ class BorrowingViewSet(
 
         serializer = BorrowingReadSerializer
         return serializer
+
+
+class BorrowingCreateViewSet(
+    mixins.CreateModelMixin,
+    viewsets.GenericViewSet
+):
+
+    queryset = Borrowing.objects.all()
+    serializer_class = BorrowingCreateSerializer
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

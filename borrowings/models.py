@@ -33,6 +33,13 @@ class Borrowing(models.Model):
                 {"book": "Book inventory is zero. Cannot borrow this book."}
             )
 
+    @staticmethod
+    def validate_actual_return_date(actual_return_date, error_to_raise):
+        if actual_return_date:
+            raise error_to_raise(
+                {"borrowing": "This borrowing has already been returned."}
+            )
+
     def clean(self) -> None:
         Borrowing.validate_borrowing(
             self.book.inventory,

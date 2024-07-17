@@ -24,3 +24,40 @@ class BorrowingReadSerializer(serializers.ModelSerializer):
             "user",
         )
         read_only_fields = ("is_active", "actual_return_date")
+
+
+class BorrowingCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Borrowing
+        fields = (
+            "book",
+            "expected_return_date",
+
+        )
+
+    def validate(self, attrs):
+        data = super(BorrowingCreateSerializer, self).validate(attrs)
+
+        borrow_date = datetime.today()
+        attrs["borrow_date"] = borrow_date
+        Borrowing.validate_borrowing(
+            attrs["book"].inventory,
+            serializers.ValidationError
+        )
+        return data
+
+    def create(self, validated_data):
+        book = validated_data["book"]
+        expected_return_date = validated_data["expected_return_date"]
+
+        borrowing = Borrowing.objects.create(
+            user=self.context["request"].user,
+            book=book,
+            expected_return_date=expected_return_date
+        )
+
+        book.inventory -= 1
+        book.save()
+
+        return borrowing
