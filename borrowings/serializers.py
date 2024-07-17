@@ -61,3 +61,25 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
         book.save()
 
         return borrowing
+
+
+class BorrowingReturnSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Borrowing
+        fields = ("id",)
+
+    def validate(self, attrs):
+        borrowing = self.instance
+        if borrowing.actual_return_date:
+            raise serializers.ValidationError(
+                {
+                    f"Borrowing with id: {borrowing.id}":
+                        "This borrowing has already been returned."
+                }
+            )
+        return attrs
+
+    def update(self, instance, validated_data):
+        instance.return_book()
+        return instance
