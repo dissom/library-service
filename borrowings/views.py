@@ -2,6 +2,7 @@ from rest_framework import viewsets, mixins, generics, status
 from rest_framework.response import Response
 
 
+from borrowings.helpers.telegram import send_message
 from borrowings.models import Borrowing
 from borrowings.permissions import IsAuthenticatedAndOwnerOrAdmin
 from borrowings.serializers import (
@@ -52,7 +53,18 @@ class BorrowingViewSet(
         return serializer
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        borrowing = serializer.save(user=self.request.user)
+
+        message = (
+            f"New Borrowing Created:\n"
+            f"Book: {borrowing.book.title} "
+            f"({borrowing.book.author})\n"
+            f"User: {borrowing.user.email}\n"
+            f"Borrow Date: {borrowing.borrow_date}\n"
+            f"Expected Return Date: {borrowing.expected_return_date}"
+        )
+        send_message(message)
+
 
 class BorrowingReturnAPIView(
     generics.CreateAPIView
