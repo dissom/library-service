@@ -25,9 +25,12 @@ urlpatterns = [
         include("books.urls", namespace="books")
     ),
     path(
+        "api/borrowings/",
+        include("borrowings.urls", namespace="borrowings")
+    ),
+    path(
         "api/users/",
         include("users.urls", namespace="users")
     ),
     path("__debug__/", include("debug_toolbar.urls")),
 ]
-
