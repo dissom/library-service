@@ -12,14 +12,13 @@ router.register("borrowings", BorrowingViewSet)
 
 
 urlpatterns = [
-    path("",include(router.urls)),
+    path("", include(router.urls)),
     path(
         "borrowings/<int:pk>/return/",
         BorrowingReturnAPIView.as_view(),
         name="borrowing-return"
     ),
 ]
-print(router.urls)
 
 
 app_name = "borrowings"
