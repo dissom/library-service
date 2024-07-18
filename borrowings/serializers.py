@@ -1,4 +1,3 @@
-from datetime import datetime
 from rest_framework import serializers
 
 from borrowings.models import Borrowing
@@ -40,8 +39,6 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         data = super(BorrowingCreateSerializer, self).validate(attrs)
 
-        borrow_date = datetime.today()
-        attrs["borrow_date"] = borrow_date
         Borrowing.validate_borrowing(
             attrs["book"].inventory,
             serializers.ValidationError
@@ -71,6 +68,7 @@ class BorrowingReturnSerializer(serializers.ModelSerializer):
         fields = ("id",)
 
     def validate(self, attrs):
+        data = super(BorrowingReturnSerializer, self).validate(attrs)
         borrowing = self.instance
         if borrowing.actual_return_date:
             raise serializers.ValidationError(
@@ -79,7 +77,7 @@ class BorrowingReturnSerializer(serializers.ModelSerializer):
                         "This borrowing has already been returned."
                 }
             )
-        return attrs
+        return data
 
     def update(self, instance, validated_data):
         instance.return_book()
