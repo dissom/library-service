@@ -1,6 +1,5 @@
-from datetime import datetime
+from datetime import date
 from django.db import models
-from django.core.exceptions import ValidationError
 
 from books.models import Book
 from borrowings.validators import validate_expected_return_date
@@ -42,12 +41,11 @@ class Borrowing(models.Model):
         )
 
     def save(self, *args, **kwargs) -> None:
-        self.full_clean()
+        self.clean()
         return super().save(*args, **kwargs)
 
     def return_book(self):
-
-        self.actual_return_date = datetime.today()
+        self.actual_return_date = date.today()
         self.book.inventory += 1
         self.book.save()
         self.is_active = False

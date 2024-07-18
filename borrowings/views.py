@@ -54,6 +54,7 @@ class BorrowingViewSet(
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+
 class BorrowingReturnAPIView(
     generics.CreateAPIView
 ):
@@ -61,6 +62,7 @@ class BorrowingReturnAPIView(
     serializer_class = BorrowingReturnSerializer
 
     def post(self, request, pk=None):
+
         borrowing = self.get_object()
         serializer = self.get_serializer(
             borrowing,
