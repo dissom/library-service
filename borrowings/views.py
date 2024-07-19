@@ -66,7 +66,6 @@ class BorrowingViewSet(
         send_message(message)
 
 
-
 class BorrowingReturnAPIView(
     generics.CreateAPIView
 ):
