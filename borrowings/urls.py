@@ -8,13 +8,13 @@ from borrowings.views import (
 
 
 router = DefaultRouter()
-router.register("borrowings", BorrowingViewSet)
+router.register("", BorrowingViewSet)
 
 
 urlpatterns = [
     path("", include(router.urls)),
     path(
-        "borrowings/<int:pk>/return/",
+        "<int:pk>/return/",
         BorrowingReturnAPIView.as_view(),
         name="borrowing-return"
     ),

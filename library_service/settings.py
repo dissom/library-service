@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "debug_toolbar",
     "borrowings",
+    "payment",
     "users",
     "books",
 ]
@@ -172,3 +173,8 @@ CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = "Europe/Kyiv"
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
+
+
+# Stripe Keys
+STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
