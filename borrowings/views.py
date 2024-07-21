@@ -87,8 +87,17 @@ class BorrowingReturnAPIView(
             partial=True
         )
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        fine = serializer.save()
+
+        payment = Payment.objects.get(borrowing=fine)
+
+        headers = self.get_success_headers(serializer.data)
+
         return Response(
-            serializer.data,
-            status=status.HTTP_200_OK
+            {
+                "detail": "You ned to pay overdue",
+                "stripe_session_url": payment.session_url
+            },
+            status=status.HTTP_200_OK,
+            headers=headers
         )
