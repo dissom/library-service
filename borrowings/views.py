@@ -1,8 +1,6 @@
 from rest_framework import viewsets, mixins, generics, status
 from rest_framework.response import Response
 
-
-from borrowings.helpers.telegram import send_message
 from borrowings.models import Borrowing
 from borrowings.permissions import IsAuthenticatedAndOwnerOrAdmin
 from borrowings.serializers import (
@@ -10,6 +8,7 @@ from borrowings.serializers import (
     BorrowingReadSerializer,
     BorrowingReturnSerializer
 )
+from payment.models import Payment
 
 
 class BorrowingViewSet(
@@ -46,24 +45,31 @@ class BorrowingViewSet(
     def get_serializer_class(self):
         if self.action == "create":
             serializer = BorrowingCreateSerializer
-        elif self.action == "return_book":
-            serializer = BorrowingReturnSerializer
         else:
             serializer = BorrowingReadSerializer
         return serializer
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        borrowing = serializer.save()
+
+        payment = Payment.objects.get(borrowing=borrowing)
+
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(
+            {
+                "detail": "Borrowing created successfully",
+                "stripe_session_url": payment.session_url
+            },
+            status=status.HTTP_201_CREATED,
+            headers=headers
+        )
+
     def perform_create(self, serializer):
         borrowing = serializer.save(user=self.request.user)
-
-        message = (
-            f"New Borrowing Created:\n"
-            f"Book: {borrowing.book.title} "
-            f"({borrowing.book.author})\n"
-            f"User: {borrowing.user.email}\n"
-            f"Borrow Date: {borrowing.borrow_date}\n"
-            f"Expected Return Date: {borrowing.expected_return_date}"
-        )
-        send_message(message)
+        return borrowing
 
 
 class BorrowingReturnAPIView(
@@ -82,4 +88,7 @@ class BorrowingReturnAPIView(
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )

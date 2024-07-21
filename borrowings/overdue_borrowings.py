@@ -5,7 +5,7 @@ from borrowings.models import Borrowing
 
 
 def check_overdue_borrowings():
-    today = datetime.today()
+    today = datetime.today().date()
     overdue_borrowings = Borrowing.objects.filter(
         expected_return_date__lte=today,
         actual_return_date__isnull=True,
