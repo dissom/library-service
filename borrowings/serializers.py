@@ -72,7 +72,7 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
         create_payment_session(
             borrowing,
             total_fee,
-            Payment.PaymentType.PAYMENT
+            Payment.PaymentType.PAYMENT.name
         )
         return borrowing
 
@@ -104,7 +104,7 @@ class BorrowingReturnSerializer(serializers.ModelSerializer):
             create_payment_session(
                 instance,
                 overdue_fee,
-                Payment.PaymentType.FINE
+                Payment.PaymentType.FINE.name
             )
 
         instance.return_book()

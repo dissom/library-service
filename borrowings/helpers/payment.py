@@ -31,20 +31,12 @@ def create_payment_session(borrowing, amount, payment_type):
         ),
     )
 
-    payment, created = Payment.objects.get_or_create(
+    Payment.objects.create(
         borrowing=borrowing,
-        defaults={
-            "session_url": session.url,
-            "session_id": session.id,
-            "money_to_pay": amount,
-            "type": payment_type,
-        },
+        session_url=session.url,
+        session_id=session.id,
+        money_to_pay=amount,
+        type=payment_type,
     )
-    if not created:
-        payment.session_url = session.url
-        payment.session_id = session.id
-        payment.money_to_pay = amount
-        payment.type = payment_type
-        payment.save()
 
-    return payment
+    return session

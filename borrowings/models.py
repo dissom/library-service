@@ -79,6 +79,6 @@ class Borrowing(models.Model):
             self.actual_return_date - self.expected_return_date
         ).days
         daily_fee = self.book.daily_fee
-        fine_multiplier = Decimal(settings.FINE_MULTIPLIER)
+        fine_multiplier = Decimal(FINE_MULTIPLIER)
         overdue_fee = overdue_days * daily_fee * fine_multiplier
         return overdue_fee
