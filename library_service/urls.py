@@ -33,8 +33,8 @@ urlpatterns = [
         include("users.urls", namespace="users")
     ),
     path(
-        "api/payments/",
-        include("payment.urls", namespace="payments")
+        "api/",
+        include("payment.urls", namespace="payment")
     ),
     path("__debug__/", include("debug_toolbar.urls")),
 ]
