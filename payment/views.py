@@ -5,6 +5,11 @@ from rest_framework import (
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from drf_spectacular.utils import (
+    extend_schema,
+    OpenApiParameter,
+    OpenApiTypes
+)
 
 from borrowings.helpers.telegram import send_message
 from payment.models import Payment
@@ -32,8 +37,26 @@ class PaymentViewSet(
             return PaymentSerializer
         return PaymentDetailSerializer
 
+    def list(self, request, *args, **kwargs):
+        """
+        Retieve full list if is admin,
+        else users see only their own payments.
+        """
+        return super().list(request, *args, **kwargs)
+
+    def retrieve(self, request, *args, **kwargs):
+        """
+        Retrieve a specific payment by ID.
+        """
+        return super().retrieve(request, *args, **kwargs)
+
 
 class PaymentSuccessView(APIView):
+    """
+    Updates the status of a payment to 'PAID'
+    based on the session ID provided in the query parameters.
+    Sends a notification message about the new borrowing.
+    """
     def get(self, request, *args, **kwargs) -> Response:
         session_id = request.query_params.get("session_id")
         payment = Payment.objects.get(session_id=session_id)
@@ -53,7 +76,10 @@ class PaymentSuccessView(APIView):
 
 
 class PaymentCancelView(APIView):
-
+    """
+    Informs the user that their payment session is still available
+    for 24 hours and prompts them to complete the payment within that period.
+    """
     def get(self, request, *args, **kwargs) -> Response:
         return Response(
             {

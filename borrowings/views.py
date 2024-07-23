@@ -1,5 +1,10 @@
 from rest_framework import viewsets, mixins, generics, status
 from rest_framework.response import Response
+from drf_spectacular.utils import (
+    extend_schema,
+    OpenApiParameter,
+    OpenApiTypes
+)
 
 from borrowings.models import Borrowing
 from borrowings.permissions import IsAuthenticatedAndOwnerOrAdmin
@@ -49,7 +54,8 @@ class BorrowingViewSet(
             serializer = BorrowingReadSerializer
         return serializer
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs) -> Response:
+        """ Create a new borrowing. Return the Stripe session """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         borrowing = serializer.save()
@@ -68,8 +74,36 @@ class BorrowingViewSet(
         )
 
     def perform_create(self, serializer):
+        """ Save the borrowing with the current user. """
         borrowing = serializer.save(user=self.request.user)
         return borrowing
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="user_id",
+                description=(
+                    "Filter by user ID (admin only)"
+                ),
+                type=OpenApiTypes.STR,
+                required=False,
+            ),
+            OpenApiParameter(
+                name="is_active",
+                description=(
+                    "Filter by active status (true/false)"
+                ),
+                type=OpenApiTypes.STR,
+                required=False,
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        """
+        List borowings with filtering by 'user_id' for admins
+        and 'is_active' only for logging user
+        """
+        return super().list(request, *args, **kwargs)
 
 
 class BorrowingReturnAPIView(
@@ -78,7 +112,11 @@ class BorrowingReturnAPIView(
     queryset = Borrowing.objects.all()
     serializer_class = BorrowingReturnSerializer
 
-    def post(self, request, pk=None):
+    def post(self, request, pk=None) -> Response:
+        """
+        Mark a borrowing as returned
+        and handle overdue payments.
+        """
 
         borrowing = self.get_object()
         serializer = self.get_serializer(
