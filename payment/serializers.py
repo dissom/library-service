@@ -11,7 +11,7 @@ class PaymentSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "status",
-            "type",
+            "pay_type",
             "borrowing",
             "money_to_pay",
         )
@@ -25,7 +25,7 @@ class PaymentDetailSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "status",
-            "type",
+            "pay_type",
             "borrowing",
             "session_url",
             "session_id",

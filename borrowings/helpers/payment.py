@@ -36,7 +36,7 @@ def create_payment_session(borrowing, amount, payment_type):
         session_url=session.url,
         session_id=session.id,
         money_to_pay=amount,
-        type=payment_type,
+        pay_type=payment_type,
     )
 
     return session

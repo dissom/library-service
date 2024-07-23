@@ -19,7 +19,7 @@ class Payment(models.Model):
         choices=[(status.value[0], status.name) for status in PaymentStatus],
         default=PaymentStatus.PENDING.value[0],
     )
-    type = models.CharField(
+    pay_type = models.CharField(
         max_length=20,
         choices=[(type.value[0], type.name) for type in PaymentType],
         default=PaymentType.PAYMENT.value[0],
@@ -36,7 +36,7 @@ class Payment(models.Model):
     def __str__(self):
         return (
             f"Payment for Borrowing ID {self.borrowing_id}, "
-            f"Type: {self.type}, Status: {self.status}"
+            f"Type: {self.pay_type}, Status: {self.status}"
         )
 
     def clean(self) -> None:

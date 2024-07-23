@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from django.http import HttpResponse
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from rest_framework import status
@@ -17,25 +16,21 @@ BORROWINGS_URL = reverse("borrowings:borrowing-list")
 def sample_borrowing(**kwargs):
     user = kwargs.get("user", get_user_model().objects.first())
     book = Book.objects.create(
-            title="Sample Book",
-            author="Sample Author",
-            cover=Book.CoverChoices.HARD.name,
-            inventory=10,
-            daily_fee=1.00
-        )
-    borrow_date = kwargs.get(
-        "borrowing_date",
-        datetime.today().date()
+        title="Sample Book",
+        author="Sample Author",
+        cover=Book.CoverChoices.HARD.name,
+        inventory=10,
+        daily_fee=1.00,
     )
+    borrow_date = kwargs.get("borrowing_date", datetime.today().date())
     expected_return_date = kwargs.get(
-        "expected_return_date",
-        borrow_date + timedelta(days=7)
+        "expected_return_date", borrow_date + timedelta(days=7)
     )
     defaults = {
         "user": user,
         "book": book,
         "borrow_date": borrow_date,
-        "expected_return_date": expected_return_date
+        "expected_return_date": expected_return_date,
     }
     defaults.update(kwargs)
 
@@ -43,10 +38,7 @@ def sample_borrowing(**kwargs):
 
 
 def detail_borrowing_url(borrowing_id: int):
-    return reverse(
-        "borrowings:borrowing-detail",
-        kwargs={"pk": borrowing_id}
-    )
+    return reverse("borrowings:borrowing-detail", kwargs={"pk": borrowing_id})
 
 
 class UnauthenticatedUserBorrowingsTestView(APITestCase):
@@ -54,8 +46,7 @@ class UnauthenticatedUserBorrowingsTestView(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = get_user_model().objects.create_user(
-            email="user@test.com",
-            password="testpassword"
+            email="user@test.com", password="testpassword"
         )
 
     def test_unauth_borrowing_list(self):
@@ -71,12 +62,10 @@ class AuthenticatedUserBorrowingsTestView(APITestCase):
     def setUp(self) -> None:
         self.client = APIClient()
         self.user = get_user_model().objects.create_user(
-            email="user@test.com",
-            password="testpassword"
+            email="user@test.com", password="testpassword"
         )
         self.other_user = get_user_model().objects.create_user(
-            email="other_user@test.com",
-            password="other_testpassword"
+            email="other_user@test.com", password="other_testpassword"
         )
         self.client.force_authenticate(self.user)
 
@@ -104,7 +93,7 @@ class AuthenticatedUserBorrowingsTestView(APITestCase):
             "book": book.id,
             "borrowing_date": date,
             "expected_return_date": date + timedelta(days=7),
-            "user": self.user
+            "user": self.user,
         }
 
         response = self.client.post(BORROWINGS_URL, data)
@@ -132,8 +121,7 @@ class AdminUserBorrowingsTestView(APITestCase):
             is_staff=True,
         )
         self.other_user = get_user_model().objects.create_user(
-            email="other_user@test.com",
-            password="other_testpassword"
+            email="other_user@test.com", password="other_testpassword"
         )
         self.client.force_authenticate(self.admin_user)
 
