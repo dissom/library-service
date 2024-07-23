@@ -1,9 +1,8 @@
 from decimal import Decimal
-from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from rest_framework import status
-from rest_framework.test import APIClient
+from rest_framework.test import APIClient, APITestCase
 
 from books.models import Book
 
@@ -23,11 +22,11 @@ def sample_book(**kwargs) -> Book:
     return Book.objects.create(**defaults)
 
 
-def detail_book_url(book_id):
+def detail_book_url(book_id: int) -> str:
     return reverse("books:book-detail", kwargs={"pk": book_id})
 
 
-class UnauthenticatedReadOnlyBooksTestVew(TestCase):
+class UnauthenticatedReadOnlyBooksTestView(APITestCase):
     def setUp(self) -> None:
         self.client = APIClient()
 
@@ -60,10 +59,10 @@ class UnauthenticatedReadOnlyBooksTestVew(TestCase):
         )
 
 
-class AuthenticatedBooksTestVew(TestCase):
+class AuthenticatedBooksTestVew(APITestCase):
     def setUp(self) -> None:
         self.client = APIClient()
-        self.user = get_user_model().objects.create(
+        self.user = get_user_model().objects.create_user(
             email="test@test.com",
             password="testuser1234",
         )
@@ -83,7 +82,7 @@ class AuthenticatedBooksTestVew(TestCase):
             status.HTTP_200_OK
         )
 
-    def test_auth_cannot_create_delete(self):
+    def test_auth_cannot_create_delete(self) -> None:
 
         book = sample_book()
         book_detail_url = reverse(
@@ -110,10 +109,10 @@ class AuthenticatedBooksTestVew(TestCase):
         )
 
 
-class AdminBooksTestVew(TestCase):
+class AdminBooksTestVew(APITestCase):
     def setUp(self) -> None:
         self.client = APIClient()
-        self.user = get_user_model().objects.create(
+        self.user = get_user_model().objects.create_user(
             email="test@test.com",
             password="testuser1234",
             is_staff=True,
@@ -138,7 +137,7 @@ class AdminBooksTestVew(TestCase):
         for key in book_data:
             self.assertEqual(book_data[key], getattr(book, key))
 
-    def test_auth_delete_book(self):
+    def test_auth_delete_book(self) -> None:
 
         book = sample_book()
 

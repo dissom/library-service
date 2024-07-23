@@ -3,7 +3,8 @@ from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 class IsAuthenticatedAndOwnerOrAdmin(BasePermission):
     """
-    Custom permission to allow only authenticated users to view their own borrowings
+    Custom permission to allow only authenticated users
+    to view their own borrowings
     and allow admins to view all borrowings.
     """
 

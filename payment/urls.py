@@ -10,7 +10,7 @@ from payment.views import (
 
 router = DefaultRouter()
 router.register("", PaymentViewSet)
-print(router.urls)
+
 
 urlpatterns = [
     path("payments/", include(router.urls)),
