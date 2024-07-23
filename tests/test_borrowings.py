@@ -13,15 +13,10 @@ from tests.test_books import sample_book
 BORROWINGS_URL = reverse("borrowings:borrowing-list")
 
 
-def sample_borrowing(**kwargs):
-    user = kwargs.get("user", get_user_model().objects.first())
-    book = Book.objects.create(
-        title="Sample Book",
-        author="Sample Author",
-        cover=Book.CoverChoices.HARD.name,
-        inventory=10,
-        daily_fee=1.00,
-    )
+def sample_borrowing(**kwargs) -> Borrowing:
+    user = kwargs.get("user", get_user_model())
+    book = sample_book()
+
     borrow_date = kwargs.get("borrowing_date", datetime.today().date())
     expected_return_date = kwargs.get(
         "expected_return_date", borrow_date + timedelta(days=7)
@@ -46,7 +41,8 @@ class UnauthenticatedUserBorrowingsTestView(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = get_user_model().objects.create_user(
-            email="user@test.com", password="testpassword"
+            email="user@test.com",
+            password="testpassword"
         )
 
     def test_unauth_borrowing_list(self):
@@ -62,10 +58,12 @@ class AuthenticatedUserBorrowingsTestView(APITestCase):
     def setUp(self) -> None:
         self.client = APIClient()
         self.user = get_user_model().objects.create_user(
-            email="user@test.com", password="testpassword"
+            email="user@test.com",
+            password="testpassword"
         )
         self.other_user = get_user_model().objects.create_user(
-            email="other_user@test.com", password="other_testpassword"
+            email="other_user@test.com",
+            password="other_testpassword"
         )
         self.client.force_authenticate(self.user)
 
@@ -121,7 +119,8 @@ class AdminUserBorrowingsTestView(APITestCase):
             is_staff=True,
         )
         self.other_user = get_user_model().objects.create_user(
-            email="other_user@test.com", password="other_testpassword"
+            email="other_user@test.com",
+            password="other_testpassword"
         )
         self.client.force_authenticate(self.admin_user)
 

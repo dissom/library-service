@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "pay_type",
+                    "type",
                     models.CharField(
                         choices=[("PAYMENT", "PAYMENT"), ("FINE", "FINE")],
                         default="PAYMENT",
