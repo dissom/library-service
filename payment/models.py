@@ -9,6 +9,7 @@ class Payment(models.Model):
     class PaymentStatus(Enum):
         PENDING = "PENDING", "Pending"
         PAID = "PAID", "Paid"
+        EXPIRED = "EXPIRED", "Expired"
 
     class PaymentType(Enum):
         PAYMENT = "PAYMENT", "Payment"

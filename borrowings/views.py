@@ -1,5 +1,6 @@
-from rest_framework import viewsets, mixins, generics, status
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
+from rest_framework import viewsets, mixins, generics, status
 from drf_spectacular.utils import (
     extend_schema,
     OpenApiParameter,
@@ -55,14 +56,27 @@ class BorrowingViewSet(
         return serializer
 
     def create(self, request, *args, **kwargs) -> Response:
-        """ Create a new borrowing. Return the Stripe session """
+        """
+        Create a new borrowing. Return the Stripe session
+        Check if user has Pending or Expired payment.
+        """
+        user = self.request.user
+
+        pending_payments = Payment.objects.filter(
+            borrowing__user=user,
+            status="PENDING" or "EXPIRED"
+        )
+        if pending_payments:
+            raise ValidationError(
+                "You have pending/expired payments. "
+                "You cannot borrow new books until they are paid."
+            )
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        borrowing = serializer.save()
+        borrowing = serializer.save(user=user)
 
         payment = Payment.objects.get(borrowing=borrowing)
-
-        headers = self.get_success_headers(serializer.data)
 
         return Response(
             {
@@ -70,13 +84,7 @@ class BorrowingViewSet(
                 "stripe_session_url": payment.session_url
             },
             status=status.HTTP_201_CREATED,
-            headers=headers
         )
-
-    def perform_create(self, serializer):
-        """ Save the borrowing with the current user. """
-        borrowing = serializer.save(user=self.request.user)
-        return borrowing
 
     @extend_schema(
         parameters=[

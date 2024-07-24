@@ -1,3 +1,4 @@
+from django.shortcuts import redirect
 import stripe
 from django.conf import settings
 
@@ -12,8 +13,8 @@ def create_payment_session(borrowing, amount, payment_type):
                 "price_data": {
                     "currency": "usd",
                     "product_data": {
-                        "name": f"{payment_type} fee for "
-                        f"{borrowing.book.title}",
+                        "name": f"{payment_type} fee "
+                        "for " f"{borrowing.book.title}",
                     },
                     "unit_amount": int(amount * 100),
                 },
@@ -31,12 +32,15 @@ def create_payment_session(borrowing, amount, payment_type):
         ),
     )
 
-    Payment.objects.create(
+    payment, created = Payment.objects.update_or_create(
         borrowing=borrowing,
-        session_url=session.url,
-        session_id=session.id,
-        money_to_pay=amount,
-        pay_type=payment_type,
+        defaults={
+            "session_url": session.url,
+            "session_id": session.id,
+            "money_to_pay": amount,
+            "pay_type": payment_type,
+            "status": Payment.PaymentStatus.PENDING.name,
+        },
     )
 
     return session
