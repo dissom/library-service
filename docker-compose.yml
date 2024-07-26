@@ -1,0 +1,84 @@
+services:
+    # Django Service
+    app:
+      restart: always
+      build:
+        context: .
+      ports:
+        - "8000:8000"
+      volumes:
+        - ./:/app
+      command: >
+        sh -c "python manage.py wait_for_db &&
+              python manage.py migrate &&
+              python manage.py runserver 0.0.0.0:8000"
+      env_file:
+        - .env
+      depends_on:
+        - library_db
+
+    # Redis Service
+    redis:
+        image: "redis:alpine"
+        ports:
+          - "6378:6379"
+
+    # PostgreSQL Database Service
+    library_db:
+      restart: always
+      image: postgres:16.3-alpine3.20
+      ports:
+        - "5432:5432"
+      env_file:
+        - .env
+      volumes:
+        - ./data/db:/var/lib/postgresql/data/pgdata/
+
+    # Celery Sevice
+    celery:
+      restart: on-failure
+      build:
+        context: .
+        dockerfile: Dockerfile
+      command: >
+        sh -c "python manage.py wait_for_db &&
+                celery -A library_service worker -l INFO"
+      env_file:
+        - .env
+      depends_on:
+        - redis
+        - library_db
+        - app
+
+    # Celery Beat
+    beat:
+      restart: on-failure
+      build:
+        context: .
+        dockerfile: Dockerfile
+      command: >
+        sh -c "python manage.py wait_for_db && 
+                celery -A library_service beat -l INFO
+                --scheduler dkango_celery_beat.schedulers:DatabaseScheduler"
+      env_file:
+        - .env
+      depends_on:
+        - redis
+        - library_db
+        - app
+
+    # Flower
+    flower:
+      restart: on-failure
+      build:
+        context: .
+        dockerfile: Dockerfile
+      ports:
+        - "5555:5555"
+      command: >
+        sh -c "python manage.py wait_for_db &&
+                celery -A library_service flower --address=0.0.0.0"
+      depends_on:
+        - celery
+      env_file:
+        - .env
