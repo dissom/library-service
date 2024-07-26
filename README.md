@@ -50,9 +50,29 @@ create an .env file in the root directory of project:
     PGDATA=PGDATA
 
     DJANGO_SECRET_KEY=DJANGO_SECRET_KEY
-    
+
 docker-compose build
 docker-compose up
-- Create new admin user. `docker-compose exec social_media_api_app python manage.py createsuperuser`;
+- Create new admin user. `docker-compose exec app python manage.py createsuperuser`;
 
 (The API will be available at `http://127.0.0.1:8000/`.)
+```
+
+## Demo
+
+### Models Diagram
+
+![Models diagram](pictures/library_service_diagram.png)
+
+### Screenshots
+
+![Screenshot 1](pictures/1.png)
+![Screenshot 2](pictures/2.png)
+![Screenshot 3](pictures/3.png)
+![Screenshot 4](pictures/4.png)
+![Screenshot 5](pictures/5.png)
+![Screenshot 6](pictures/6.png)
+![Screenshot 7](pictures/7.png)
+![Screenshot 8](pictures/8.png)
+![Screenshot 9](pictures/9.png)
+![Screenshot 10](pictures/10.png)
